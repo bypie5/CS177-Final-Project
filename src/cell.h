@@ -10,7 +10,10 @@ public:
 		pavement = new facility("cell");
 	};
 
-	facility* getPavement() { return pavement; }
+public:
+	facility* getPavement() { return pavement; };
+	void occupy() { pavement->reserve(); };
+	void free() { pavement->release(); };
 };
 
 #endif

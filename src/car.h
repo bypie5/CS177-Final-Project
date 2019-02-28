@@ -1,13 +1,20 @@
+#include "cpp.h"
+#include "constants.h"
+#include "roadway.h"
+
 #ifndef __CAR_H__
 #define __CAR_H__
 
 class Car {
 private:
+	Roadway* roadway;
 
 public:
-	Car() {
-		// TODO: Data setup, if any	
-		
+	Car(Roadway * r) {
+		// Data setup
+		this->roadway = r;
+
+		// Enter sim
 		this->simCar();
 	};
 

@@ -14,7 +14,9 @@ using namespace std;
 extern "C" void sim() {
 	trace_on();
 	create("sim");
-	new Roadway(10, 10, 1);
+	Roadway* r = new Roadway(10, 10, 1);
+	new Car(r);
+	hold(100);
 	trace_off();
 }
 
