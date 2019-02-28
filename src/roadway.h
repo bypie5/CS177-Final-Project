@@ -6,23 +6,37 @@
 
 class Roadway {
 private:
-	Cell** cells;
-	int length; // Car lengths (2 cells per car)
+	Cell** precells;
+	Dropoff** dropoffs;
+	Cell** postcells;
+	int prelength; // Car lengths (2 cells per car)
 	int zones; // Number of dropoff areas
+	int postlength;
 
 public:
-	Roadway(int length, int zones) {
-		this->length = length;
+	// Precells   Zones       Postcells
+	// [*****]|...|...|...|[*************]
+	Roadway(int prelength, int postlength, int zones) {
+		this->prelength = prelength;
 		this->zones = zones;
+		this->postlength = postlength;
 
-		// Create the facilities for the roadway
-		cells = (Cell**) malloc(sizeof(Cell*) * length * CARLEN);
-		for (int i = 0; i < length * CARLEN; i++) {
-			cells[i] = new Cell();
+		// Create the facilities for the roadway (2 cells per length unit)
+		precells = (Cell**) malloc(sizeof(Cell*) * prelength * CARLEN);
+		for (int i = 0; i < prelength * CARLEN; i++) {
+			precells[i] = new Cell();
+		}
+
+		dropoffs = (Dropoff**) malloc(sizeof(Dropoff*) * zones);
+		for (int i = 0; i < zones; i++) {
+			dropoffs[i] = new Dropoff();
+		}
+
+		postcells = (Cell**) malloc(sizeof(Cell*) * postlength * CARLEN);
+		for (int i = 0; i < postlength * CARLEN; i++) {
+			postcells[i] = new Cell();
 		}
 	};
-
-
 };
 
 #endif
