@@ -34,7 +34,7 @@ void Car::simCar() {
 				// Release cell behind tail
 				if (tail - 1 >= 0 && tail <= lenPre)
 					precells[tail-1]->free();
-				}
+			}
 		}
 	}
 
