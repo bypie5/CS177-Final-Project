@@ -8,11 +8,15 @@
 class Car {
 private:
 	Roadway* roadway;
+	int currSpeed;	
 
 public:
 	Car(Roadway * r) {
 		// Data setup
 		this->roadway = r;
+
+		// Cars are created at start of the roadway with 0 speed per document
+		currSpeed = 0;
 
 		// Enter sim
 		this->simCar();

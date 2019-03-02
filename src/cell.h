@@ -12,6 +12,9 @@ public:
 
 public:
 	facility* getPavement() { return pavement; };
+	bool isBusy() {
+		return pavement->num_busy() > 0 ? true : false;
+	};
 	void occupy() { pavement->reserve(); };
 	void free() { pavement->release(); };
 };

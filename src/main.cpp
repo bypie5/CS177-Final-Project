@@ -11,12 +11,24 @@
 
 using namespace std;
 
-extern "C" void sim() {
-	trace_on();
-	create("sim");
-	Roadway* r = new Roadway(10, 10, 1);
+void carSpawner(Roadway* r) {
 	new Car(r);
-	hold(100);
-	trace_off();
+	new Car(r);
+}
+
+
+extern "C" void sim() {
+	//trace_on();
+	create("sim");
+
+	// Setup
+	Roadway* r = new Roadway(10, 10, 1);
+	
+	// Main behavior
+	carSpawner(r);
+
+	hold(SIMTIME);
+	//trace_off();
+	report();
 }
 
