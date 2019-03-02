@@ -24,6 +24,9 @@ public:
 
 public:
 	void simCar();
+
+private:
+	double secPerCar(int s);
 };
 
 #endif

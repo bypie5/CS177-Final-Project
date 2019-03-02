@@ -28,3 +28,30 @@ void Car::simCar() {
 	
 }
 
+// Defined in documentation
+double Car::secPerCar(int s) {
+	switch(s) {
+		case 0:
+			return -1; // Stopped car
+		break;
+		case 1:
+			return 3;
+		break;
+		case 2:
+			return 11.0/6.0;
+		break;
+		case 3:
+			return 1;
+		break;
+		case 4:
+			return 2.0/3.0;
+		break;
+		case 5:
+			return 0.5;
+		break;
+		default:
+			return -1;
+		break;
+	}
+}
+
