@@ -39,7 +39,8 @@ void Car::simCar() {
 	}
 
 	// Reset for next drive
-	head, tail = 0;
+	head = 0;
+	tail = -1;
 
 	// Reserve and drop off at furthest zone
 	zones[0]->reserveMe();
