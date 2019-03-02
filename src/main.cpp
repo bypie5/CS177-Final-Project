@@ -13,7 +13,6 @@ using namespace std;
 
 void carSpawner(Roadway* r) {
 	new Car(r);
-	new Car(r);
 }
 
 
