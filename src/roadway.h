@@ -40,13 +40,13 @@ public:
 
 public:
 	Cell** getPrecells() { return this->precells; };
-	int getPrecellsLen() { return this->prelength; };
+	int getPrecellsLen() { return this->prelength*CARLEN; };
 
 	Dropoff** getDropoffs() { return this->dropoffs; };
 	int getDropoffCount() { return this->zones; };
 
 	Cell** getPostcells() { return this->postcells; };
-	int getPostcellsLen() { return this->postlength; };
+	int getPostcellsLen() { return this->postlength*CARLEN; };
 };
 
 #endif

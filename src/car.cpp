@@ -12,12 +12,34 @@ void Car::simCar() {
 	Cell** postcells = roadway->getPostcells();
 	int lenPost = roadway->getPostcellsLen();
 	
-	int cursor = 0; // Where is the car relative to end of strip?
+	// Car pulls into the roadway (ie head is zero)...
+	precells[head]->occupy();
 
 	// Drive down precells
-	while (cursor <= lenPre) {
-		cursor++;
-	} cursor = 0; // Reset for next drive
+	while (tail <= lenPre) {
+		// Adjust target speed (if able to do so)
+		if (currSpeed < TARGETSPEED)
+			currSpeed++;
+
+		double velocity = secPerCar(currSpeed);
+		// Move at current speed
+		if (velocity > 0) {
+			for (int i = 0; i < 2; i++) {
+				// Move half car len
+				head++; tail++;
+				if (head < lenPre)
+					precells[head]->occupy();
+				hold(velocity/2);
+
+				// Release cell behind tail
+				if (tail - 1 >= 0 && tail <= lenPre)
+					precells[tail-1]->free();
+				}
+		}
+	}
+
+	// Reset for next drive
+	head, tail = 0;
 
 	// Reserve and drop off at furthest zone
 	zones[0]->reserveMe();
@@ -32,7 +54,7 @@ void Car::simCar() {
 double Car::secPerCar(int s) {
 	switch(s) {
 		case 0:
-			return -1; // Stopped car
+			return 0; // Stopped car
 		break;
 		case 1:
 			return 3;
@@ -50,7 +72,7 @@ double Car::secPerCar(int s) {
 			return 0.5;
 		break;
 		default:
-			return -1;
+			return 0;
 		break;
 	}
 }
