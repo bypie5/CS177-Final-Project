@@ -14,8 +14,8 @@ class Car {
 private:
 	Roadway* roadway;
 	int currSpeed;	
-	double head;
-	double tail;
+	int head;
+	int tail;
 	int monitorLen; // By # of cells
 	int state;
 	double portionDriven;
@@ -47,13 +47,14 @@ public:
 public:
 	void simCar();
 	void getLocation() {
-		printf("%f: head: %f, tail: %f\n", clock, head, tail);
+		printf("%f: head: %d, tail: %d\n", clock, head, tail);
 	}
 private:
 	void driveSM();
 	double secPerCar(int s);
 	bool obstacle();
 	void driveCarLenPortion(Cell** p, int pl, double portionFraction);
+	void increaseSpeed();
 };
 
 #endif

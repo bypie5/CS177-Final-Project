@@ -47,14 +47,15 @@ void Car::driveSM() {
 
 			// Transitions
 			if (!obstacle()) {
+				currSpeed = 1;
 				state = DRIVING;
 			} else {
 				state = STOPPED;
 			}
 		break;
 		case DRIVING:
-			currSpeed = 1;
 			// Actions
+			increaseSpeed();
 			driveCarLenPortion(precells, lenPre, portionFraction);			
 		
 			// Transitions
@@ -124,27 +125,27 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
 	// How long does it take to travel that portion of a car len 
 	double portionTime = (double) (secPerCar(currSpeed)/portionFraction);
 
+	portionDriven = portionDriven >= 1.0 ? 0 : portionDriven;
 	// Increase head and tail
-	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 1.0)) {
-		head++; // (double) (2.0/portionFraction);
-		tail++; // (double) (2.0/portionFraction);
+	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 0.9)) {
+		head++;
+		tail++;
 	}
 
-	// Reserve head and tail (if new whole #)
-	int iHead = (int) floor(head);
-	int iTail = (int) floor(tail);
-	
-	printf("por: %f, iHead: %d, iTail: %d\n\n", portionDriven, iHead, iTail);	
-
-	if (iHead < pathLen && !path[iHead]->isBusy()) {
-		path[iHead]->occupy();
+	if (head < pathLen && !path[head]->isBusy()) {
+		path[head]->occupy();
 	}
 	hold(portionTime);	
-	if (iTail - 1 >= 0 && iTail <= pathLen && path[iTail-1]->isBusy()) {
-		path[iTail-1]->free();
+	if (tail - 1 >= 0 && tail <= pathLen && path[tail-1]->isBusy()) {
+		path[tail-1]->free();
 	}	
 	
 	portionDriven += ((double)1.0/portionFraction);
-	portionDriven = (portionDriven >= 1.0) ? 0 : portionDriven;
+}
+
+void Car::increaseSpeed() {
+	if (double_equals(portionDriven, 1.0) && currSpeed != TARGETSPEED) {
+		currSpeed++;
+	}
 }
 
