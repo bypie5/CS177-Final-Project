@@ -15,7 +15,6 @@ void carSpawner(Roadway* r) {
 	new Car(r);
 }
 
-
 extern "C" void sim() {
 	//trace_on();
 	create("sim");
