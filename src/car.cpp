@@ -55,7 +55,7 @@ void Car::driveSM() {
 		break;
 		case DRIVING:
 			// Actions
-			increaseSpeed();
+			increaseSpeed(); // Speed increases every carlen if possible
 			driveCarLenPortion(precells, lenPre, portionFraction);			
 		
 			// Transitions
