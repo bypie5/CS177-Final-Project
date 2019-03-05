@@ -1,45 +1,43 @@
 #include "car.h"
+#include <math.h>
+#include <cmath>
+
+// Helper function definitions
+#ifndef __HELPERS__
+#define __HELPERS__
+bool double_equals(double a, double b, double epsilon);
+#endif
+
 
 // Lifetime and behavior of a car
 void Car::simCar() {
 	create("Car");
 	
+	// Pull into school dropoff...
+
 	// Get parts of the road for later usage (roadway.h explains parts of road)
-	Cell** precells = roadway->getPrecells();
-	int lenPre = roadway->getPrecellsLen();
-	Dropoff** zones = roadway->getDropoffs();
-	int lenZones = roadway->getDropoffCount();
-	Cell** postcells = roadway->getPostcells();
-	int lenPost = roadway->getPostcellsLen();
-	
-	// Car pulls into the roadway (ie head is zero)...
-	precells[head]->occupy();
+	precells = roadway->getPrecells();
+	lenPre = roadway->getPrecellsLen();
+	zones = roadway->getDropoffs();
+	lenZones = roadway->getDropoffCount();
+	postcells = roadway->getPostcells();
+	lenPost = roadway->getPostcellsLen();
 
-	// Drive down precells
+	// Temporary road block
+	for (int i = 15; i < lenPre; i++) {
+		precells[i]->occupy();
+	}
+
+	// Driving state machine
 	while (tail <= lenPre) {
-		// Adjust target speed (if able to do so)
-		if (currSpeed < TARGETSPEED)
-			currSpeed++;
-
-		double velocity = secPerCar(currSpeed);
-		// Move at current speed
-		if (velocity > 0) {
-			for (int i = 0; i < 2; i++) {
-				// Move half car len
-				head++; tail++;
-				if (head < lenPre)
-					precells[head]->occupy();
-				hold(velocity/2);
-
-				// Release cell behind tail
-				if (tail - 1 >= 0 && tail <= lenPre)
-					precells[tail-1]->free();
-			}
-		}
+		getLocation();
+		driveSM(precells, lenPre);
 	}
 
 	// Reset for next drive
-	head, tail = 0;
+	head = 0;
+	tail = -1;
+	state = STOPPED;	
 
 	// Reserve and drop off at furthest zone
 	zones[0]->reserveMe();
@@ -47,7 +45,84 @@ void Car::simCar() {
 	zones[0]->releaseMe();
 
 	// Drive off and exit world via postcells
+	/*while (tail < lenPost) {
+		getLocation();
+		driveSM(postcells, lenPost);
+	}*/
+}
+
+void Car::driveSM(Cell** r, int len) {	
+	// Similar to a frame rate
+	double portionFraction = 10;
+	double distanceDrifted = 0;	
+
+	switch(state) {
+		case STOPPED:
+			// Actions
+			currSpeed = 0;
+			hold(1000); // Allow simulation time to advance while stopped
+			// Transitions
+			if (!obstacle(r, len)) {
+				currSpeed = 1;
+				printf("%f: STOPPED->DRIVING\n", clock);
+				state = DRIVING;
+			} else {
+				state = STOPPED;
+			}
+		break;
+		case DRIVING:
+			// Actions
+			increaseSpeed(); // Speed increases every carlen if possible
+			driveCarLenPortion(r, len, portionFraction);			
+		
+			// Transitions
+			if (obstacle(r, len)) {
+				printf("%f: DRIVING->REACTING\n", clock);
+				state = REACTING;
+			} else {
+				state = DRIVING;
+			}
+		break;
+		case REACTING:
+			// Actions 
+			distanceDrifted = portionDriven;
+			// Drive at current speed during delayed reaction time (1 second)
+			for (int i = 0; i < portionFraction; i++) {
+				double carPerSec_portion = (double) (1/secPerCar(currSpeed))/(2*portionFraction);
+				
+				portionDriven += carPerSec_portion;
+				distanceDrifted += carPerSec_portion;
+				// Update head and tail if portionDriven overflows or when needed
+				if (distanceDrifted >= 0.5) {
+					distanceDrifted -= 0.5; // Trim the difference
+					head++; tail++;
+					printf("Drifted 1/2 a car length\n");
+				}	
+				portionDriven = portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;
+
+				// Advance simulation time
+				hold(1/portionFraction);
+			}
 	
+			// Transitions
+			printf("%f: REACTING->STOPPING\n", clock);
+			state = STOPPING;
+		break;
+		case STOPPING:
+			// Actions
+			currSpeed = 0;
+			// Transitions
+			if (currSpeed == 0) {
+				printf("%f: STOPPING->STOPPED\n", clock);
+				state = STOPPED;
+			} else if (currSpeed != 0 && !obstacle(r, len)) {
+				printf("%f: STOPPING->DRIVING\n", clock);
+				state = DRIVING;
+			}
+		break;
+		default:
+		break;
+	}
 }
 
 // Defined in documentation
@@ -74,6 +149,72 @@ double Car::secPerCar(int s) {
 		default:
 			return 0;
 		break;
+	}
+}
+
+bool Car::obstacle(Cell** path, int len) {
+	// Calculate monitoring distance
+	switch(currSpeed) {
+		case 5:
+			monitorLen = CARLEN*4;
+		break;
+		case 4:
+			monitorLen = CARLEN*3;
+		break;
+		case 3:
+			monitorLen = CARLEN*2;
+		break;
+		case 2:
+			monitorLen = CARLEN*2;
+		break;
+		case 1:
+			monitorLen = CARLEN;
+		break;
+		default:
+			monitorLen = CARLEN;
+		break;
+	}	
+
+	// Check cells for monitor distance
+	for (int i = head+1; i < head+monitorLen+1; i++) {
+		if (i < len && path[i]->isBusy()) {
+				return true;
+		}
+	}
+
+	return false;
+}
+
+// Because floating point comparisons aren't perfect...
+bool double_equals(double a, double b, double epsilon = 0.001) {
+	return std::abs(a - b) < epsilon;
+}
+
+void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
+	// How long does it take to travel that portion of a car len 
+	double portionTime = (double) (secPerCar(currSpeed)/portionFraction);
+
+	portionDriven = portionDriven >= 1.0 ? 0 : portionDriven;
+	// Increase head and tail
+	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 0.9)) {
+		head++;
+		tail++;
+	}
+
+	if (head < pathLen && !path[head]->isBusy()) {
+		path[head]->occupy();
+	}
+	hold(portionTime);	
+	if (tail - 1 >= 0 && tail <= pathLen && path[tail-1]->isBusy()) {
+		path[tail-1]->free();
+	}	
+	
+	portionDriven += ((double)1.0/portionFraction);
+}
+
+void Car::increaseSpeed() {
+	if (double_equals(portionDriven, 1.0) && currSpeed != TARGETSPEED) {
+		currSpeed++;
 	}
 }
 
