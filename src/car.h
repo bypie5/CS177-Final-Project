@@ -55,6 +55,7 @@ private:
 	bool obstacle(Cell** path, int len);
 	void driveCarLenPortion(Cell** p, int pl, double portionFraction);
 	void increaseSpeed();
+	void decreaseSpeed();
 };
 
 #endif

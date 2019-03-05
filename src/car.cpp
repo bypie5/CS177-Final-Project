@@ -23,11 +23,6 @@ void Car::simCar() {
 	postcells = roadway->getPostcells();
 	lenPost = roadway->getPostcellsLen();
 
-	// Temporary road block
-	for (int i = 15; i < lenPre; i++) {
-		precells[i]->occupy();
-	}
-
 	// Driving state machine
 	while (tail <= lenPre) {
 		getLocation();
@@ -45,10 +40,10 @@ void Car::simCar() {
 	zones[0]->releaseMe();
 
 	// Drive off and exit world via postcells
-	/*while (tail < lenPost) {
+	while (tail < lenPost) {
 		getLocation();
 		driveSM(postcells, lenPost);
-	}*/
+	}
 }
 
 void Car::driveSM(Cell** r, int len) {	
@@ -60,7 +55,7 @@ void Car::driveSM(Cell** r, int len) {
 		case STOPPED:
 			// Actions
 			currSpeed = 0;
-			hold(1000); // Allow simulation time to advance while stopped
+			hold(0.05); // Allow simulation time to advance while stopped
 			// Transitions
 			if (!obstacle(r, len)) {
 				currSpeed = 1;
@@ -110,7 +105,9 @@ void Car::driveSM(Cell** r, int len) {
 		break;
 		case STOPPING:
 			// Actions
-			currSpeed = 0;
+			decreaseSpeed();
+			driveCarLenPortion(r, len, portionFraction);		
+	
 			// Transitions
 			if (currSpeed == 0) {
 				printf("%f: STOPPING->STOPPED\n", clock);
@@ -176,7 +173,7 @@ bool Car::obstacle(Cell** path, int len) {
 	}	
 
 	// Check cells for monitor distance
-	for (int i = head+1; i < head+monitorLen+1; i++) {
+	for (int i = head+1; i <= head+monitorLen+1; i++) {
 		if (i < len && path[i]->isBusy()) {
 				return true;
 		}
@@ -215,6 +212,18 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
 void Car::increaseSpeed() {
 	if (double_equals(portionDriven, 1.0) && currSpeed != TARGETSPEED) {
 		currSpeed++;
+		
+		// Overflow protection
+		if (currSpeed > TARGETSPEED) currSpeed = TARGETSPEED;
+	}
+}
+
+void Car::decreaseSpeed() {
+	if ((double_equals(portionDriven, 1.0) || double_equals(portionDriven, 0.5)) && currSpeed != 0) {
+		currSpeed--;
+		
+		// Overflow protection
+		if (currSpeed < 0) currSpeed = 0;
 	}
 }
 
