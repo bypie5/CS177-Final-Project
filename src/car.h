@@ -50,9 +50,9 @@ public:
 		printf("%f: head: %d, tail: %d\n", clock, head, tail);
 	}
 private:
-	void driveSM();
+	void driveSM(Cell** r, int len);
 	double secPerCar(int s);
-	bool obstacle();
+	bool obstacle(Cell** path, int len);
 	void driveCarLenPortion(Cell** p, int pl, double portionFraction);
 	void increaseSpeed();
 };

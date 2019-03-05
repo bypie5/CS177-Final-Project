@@ -20,7 +20,7 @@ void Car::simCar() {
 	// Driving state machine
 	while (tail <= lenPre) {
 		getLocation();
-		driveSM();
+		driveSM(precells, lenPre);
 	}
 
 	// Reset for next drive
@@ -37,7 +37,7 @@ void Car::simCar() {
 	
 }
 
-void Car::driveSM() {	
+void Car::driveSM(Cell** r, int len) {	
 	double portionFraction = 10;
 	
 	switch(state) {
@@ -46,7 +46,7 @@ void Car::driveSM() {
 			currSpeed = 0;
 
 			// Transitions
-			if (!obstacle()) {
+			if (!obstacle(r, len)) {
 				currSpeed = 1;
 				state = DRIVING;
 			} else {
@@ -56,10 +56,10 @@ void Car::driveSM() {
 		case DRIVING:
 			// Actions
 			increaseSpeed(); // Speed increases every carlen if possible
-			driveCarLenPortion(precells, lenPre, portionFraction);			
+			driveCarLenPortion(r, len, portionFraction);			
 		
 			// Transitions
-			if (obstacle()) {
+			if (obstacle(r, len)) {
 				state = REACTING;
 			} else {
 				state = DRIVING;
@@ -77,7 +77,7 @@ void Car::driveSM() {
 			// Transitions
 			if (currSpeed == 0) {
 				state = STOPPED;
-			} else if (currSpeed != 0 && !obstacle()) {
+			} else if (currSpeed != 0 && !obstacle(r, len)) {
 				state = DRIVING;
 			}
 		break;
@@ -113,7 +113,37 @@ double Car::secPerCar(int s) {
 	}
 }
 
-bool Car::obstacle() {
+bool Car::obstacle(Cell** path, int len) {
+	// Calculate monitoring distance
+	switch(currSpeed) {
+		case 5:
+			monitorLen = CARLEN*4;
+		break;
+		case 4:
+			monitorLen = CARLEN*3;
+		break;
+		case 3:
+			monitorLen = CARLEN*2;
+		break;
+		case 2:
+			monitorLen = CARLEN*2;
+		break;
+		case 1:
+			monitorLen = CARLEN;
+		break;
+		default:
+			monitorLen = CARLEN;
+		break;
+	}	
+
+	// Check cells for monitor distance
+	for (int i = head+1; i < monitorLen; i++) {
+		if (i < len) {
+			if (path[i]->isBusy())
+				return true;
+		}
+	}
+
 	return false;
 }
 
