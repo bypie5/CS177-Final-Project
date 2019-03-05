@@ -4,7 +4,6 @@
 class Cell {
 private:
 	facility* pavement;
-
 public:
 	Cell() {
 		pavement = new facility("cell");
