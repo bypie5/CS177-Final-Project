@@ -18,7 +18,7 @@ private:
 	int tail;
 	int monitorLen; // By # of cells
 	int state;
-	double portionDriven;
+	double portionDriven; // What fraction of a carlen has been driven?
 
 	Cell** precells;
 	int lenPre;
@@ -47,7 +47,7 @@ public:
 public:
 	void simCar();
 	void getLocation() {
-		printf("%f: head: %d, tail: %d\n", clock, head, tail);
+		printf("%f: head: %d, tail: %d Speed(%d)\n", clock, head, tail, currSpeed);
 	}
 private:
 	void driveSM(Cell** r, int len);

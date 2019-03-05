@@ -27,6 +27,6 @@ extern "C" void sim() {
 
 	hold(SIMTIME);
 	//trace_off();
-	report();
+	//report();
 }
 
