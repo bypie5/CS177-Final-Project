@@ -19,7 +19,6 @@ void Car::simCar() {
 
 	// Driving state machine
 	while (tail <= lenPre) {
-		getLocation();
 		driveSM(precells, lenPre);
 	}
 
@@ -34,7 +33,9 @@ void Car::simCar() {
 	zones[0]->releaseMe();
 
 	// Drive off and exit world via postcells
-	
+	while (tail < lenPost) {
+		driveSM(postcells, lenPost);
+	}	
 }
 
 void Car::driveSM(Cell** r, int len) {	
@@ -147,6 +148,7 @@ bool Car::obstacle(Cell** path, int len) {
 	return false;
 }
 
+// Because floating point comparisons aren't perfect...
 bool double_equals(double a, double b, double epsilon = 0.001) {
 	return std::abs(a - b) < epsilon;
 }
