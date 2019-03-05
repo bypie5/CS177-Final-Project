@@ -91,14 +91,14 @@ void Car::driveSM(Cell** r, int len) {
 				double carPerSec_portion = (double) (1/secPerCar(currSpeed))/(2*portionFraction);
 				
 				portionDriven += carPerSec_portion;
-				distanceDrifted += carPerSec_portion * 4;
+				distanceDrifted += carPerSec_portion;
 				// Update head and tail if portionDriven overflows or when needed
 				if (distanceDrifted >= 0.5) {
-					distanceDrifted = 0;
+					distanceDrifted -= 0.5; // Trim the difference
 					head++; tail++;
 					printf("Drifted 1/2 a car length\n");
 				}	
-				portionDriven = portionDriven >= 1.0 ? 0 : portionDriven;
+				portionDriven = portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;
 
 				// Advance simulation time
 				hold(1/portionFraction);
