@@ -23,9 +23,9 @@ void Car::simCar() {
 
 	// Pull into the school dropoff...
 	if (head >= 0)
-		precells[head]->occupy();
+		precells[head]->occupy(id);
 	if (tail >= 0)
-		precells[tail]->occupy();
+		precells[tail]->occupy(id);
 
 	// Driving state machine
 	while (tail <= lenPre) {
@@ -39,9 +39,9 @@ void Car::simCar() {
 	state = STOPPED;	
 
 	// Reserve and drop off at furthest zone
-	zones[0]->reserveMe();
+	zones[0]->reserveMe(id);
 	hold(9.5);
-	zones[0]->releaseMe();
+	zones[0]->releaseMe(id);
 
 	// Drive off and exit world via postcells
 	/*while (tail < lenPost) {
@@ -100,15 +100,15 @@ void Car::driveSM(Cell** r, int len) {
 				portionDriven = portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;
 				
 				if (head >= 0 && head < len && !r[head]->isBusy()) {
-					r[head]->occupy();
+					r[head]->occupy(id);
 				}
 				if (tail >= 0 && tail < len && !r[tail-1]->isBusy()) {
-					r[tail]->occupy();
+					r[tail]->occupy(id);
 				}
 				// Advance simulation time
 				hold(1/portionFraction);
 				if (tail - 1 >= 0 && tail <= len && r[tail-1]->isBusy()) {
-					r[tail-1]->free();
+					r[tail-1]->free(id);
 				}
 			}
 	
@@ -187,7 +187,7 @@ bool Car::obstacle(Cell** path, int len) {
 	}	
 
 	// Check cells for monitor distance
-	for (int i = head+1; i <= head+monitorLen+1; i++) {
+	for (int i = head+1; i < head+monitorLen+1; i++) {
 		if (i < len && path[i]->isBusy()) {
 				return true;
 		}
@@ -213,14 +213,14 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
 	}
 
 	if (head >= 0 && head < pathLen && !path[head]->isBusy()) {
-		path[head]->occupy();
+		path[head]->occupy(id);
 	}
 	if (tail >= 0 && tail < pathLen && !path[tail]->isBusy()) {
-		path[tail]->occupy();
+		path[tail]->occupy(id);
 	}
 	hold(portionTime);	
 	if (tail - 1 >= 0 && tail <= pathLen && path[tail-1]->isBusy()) {
-		path[tail-1]->free();
+		path[tail-1]->free(id);
 	}	
 	
 	portionDriven += ((double)1.0/portionFraction);

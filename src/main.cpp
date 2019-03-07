@@ -13,7 +13,7 @@ using namespace std;
 
 void carSpawner(Roadway* r) {
 	new Car(r, 0, 1);
-	new Car(r, 3, 2);
+	new Car(r, 2, 2);
 }
 
 extern "C" void sim() {

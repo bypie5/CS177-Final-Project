@@ -4,9 +4,12 @@
 class Cell {
 private:
 	facility* pavement;
+	int owner;
+
 public:
 	Cell() {
 		pavement = new facility("cell");
+		owner = -1;
 	};
 
 public:
@@ -14,8 +17,16 @@ public:
 	bool isBusy() {
 		return pavement->num_busy() > 0 ? true : false;
 	};
-	void occupy() { pavement->reserve(); };
-	void free() { pavement->release(); };
+	void occupy(int requester_id) { 
+		pavement->reserve(); 
+		owner = requester_id;
+	};
+	void free(int requester_id) {
+		if (requester_id == owner) {
+			pavement->release(); 
+			owner = -1;
+		}
+	};
 };
 
 #endif
