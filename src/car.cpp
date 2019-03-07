@@ -54,16 +54,20 @@ void Car::driveSM(Cell** r, int len) {
 	// Similar to a frame rate
 	double portionFraction = 10;
 	double distanceDrifted = 0; // Used for reaction tim	
+	double totalDrifted = 0;	
+
+	// See the traffic on the roadway
 	roadway->printRoadway(r, len);
+	
 	switch(state) {
 		case STOPPED:
 			// Actions
 			currSpeed = 0;
-			hold(0.1); // Allow simulation time to advance while stopped
+			hold(10); // Allow simulation time to advance while stopped
 			// Transitions
 			if (!obstacle(r, len)) {
-				currSpeed = 1;
 				printf("%f(Car %d): STOPPED->DRIVING\n", clock, id);
+				currSpeed = 1;
 				state = DRIVING;
 			} else {
 				state = STOPPED;
@@ -71,8 +75,7 @@ void Car::driveSM(Cell** r, int len) {
 		break;
 		case DRIVING:
 			// Actions
-			increaseSpeed(); // Speed increases every carlen if possible
-			driveCarLenPortion(r, len, portionFraction);			
+			driveCarLenPortion(r, len, portionFraction, true);			
 		
 			// Transitions
 			if (obstacle(r, len)) {
@@ -91,11 +94,11 @@ void Car::driveSM(Cell** r, int len) {
 				
 				portionDriven += carPerSec_portion;
 				distanceDrifted += carPerSec_portion;
+				totalDrifted += carPerSec_portion;
 				// Update head and tail if portionDriven overflows or when needed
 				if (distanceDrifted >= 0.5) {
 					distanceDrifted -= 0.5; // Trim the difference
 					head++; tail++;
-					// printf("Drifted 1/2 a car length\n");
 				}	
 				portionDriven = portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;
 				
@@ -112,6 +115,7 @@ void Car::driveSM(Cell** r, int len) {
 				}
 			}
 	
+			printf("Car %d drifted: %f\n", id, totalDrifted);
 			// Transitions
 			printf("%f (Car %d): REACTING->STOPPING\n", clock, id);
 			distanceDrifted = 0; // Reset for next time
@@ -119,9 +123,8 @@ void Car::driveSM(Cell** r, int len) {
 		break;
 		case STOPPING:
 			// Actions
-			decreaseSpeed();
-			driveCarLenPortion(r, len, portionFraction);		
-	
+			driveCarLenPortion(r, len, portionFraction, false);		
+
 			// Transitions
 			if (currSpeed == 0) {
 				printf("%f(Car %d): STOPPING->STOPPED\n", clock, id);
@@ -187,9 +190,9 @@ bool Car::obstacle(Cell** path, int len) {
 	}	
 
 	// Check cells for monitor distance
-	for (int i = head+1; i < head+monitorLen+1; i++) {
-		if (i < len && path[i]->isBusy()) {
-				return true;
+	for (int i = head; i <= head+monitorLen; i++) {
+		if (i < len && path[i]->isBusy() && path[i]->getOwner() != id) {
+			return true;
 		}
 	}
 
@@ -201,15 +204,35 @@ bool double_equals(double a, double b, double epsilon = 0.001) {
 	return std::abs(a - b) < epsilon;
 }
 
-void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
+double truncateToTenths(double val) {
+	if (abs(val - (floor(val*10.)/10.)) < abs(val - (ceil(val*10.)/10.)))	{
+		return floor(val * 10.)/10.; 
+	} else {
+		return ceil(val*10.)/10.;
+	}
+}
+
+void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction, bool accelerate) {
 	// How long does it take to travel that portion of a car len 
 	double portionTime = (double) (secPerCar(currSpeed)/portionFraction);
+	portionDriven = truncateToTenths(portionDriven);	
 
-	portionDriven = portionDriven >= 1.0 ? 0 : portionDriven;
+	printf("%f\n", portionDriven);
+	portionDriven = portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;
 	// Increase head and tail
-	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 0.9)) {
+	if (double_equals(portionDriven, 0.4) || double_equals(portionDriven, 0.9)) {
 		head++;
 		tail++;
+
+		if (accelerate && double_equals(portionDriven, 0.9)) {
+			currSpeed++;
+			if (currSpeed > TARGETSPEED) currSpeed = TARGETSPEED;
+		}
+		
+		if (!accelerate) {
+			currSpeed--;
+			if (currSpeed < 0) currSpeed = 0;	
+		}	
 	}
 
 	if (head >= 0 && head < pathLen && !path[head]->isBusy()) {
@@ -226,7 +249,7 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction) {
 	portionDriven += ((double)1.0/portionFraction);
 }
 
-void Car::increaseSpeed() {
+/*void Car::increaseSpeed() {
 	if (double_equals(portionDriven, 1.0) && currSpeed != TARGETSPEED) {
 		currSpeed++;
 		
@@ -238,9 +261,9 @@ void Car::increaseSpeed() {
 void Car::decreaseSpeed() {
 	if ((double_equals(portionDriven, 1.0) || double_equals(portionDriven, 0.5)) && currSpeed != 0) {
 		currSpeed--;
-		
+		printf("Car %d portion: %f\n", id, portionDriven);
 		// Overflow protection
 		if (currSpeed < 0) currSpeed = 0;
 	}
-}
+}*/
 

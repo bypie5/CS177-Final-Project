@@ -22,7 +22,11 @@ extern "C" void sim() {
 
 	// Setup
 	Roadway* r = new Roadway(10, 10, 1);
-
+	
+	// Road block
+	r->getPrecells()[10]->occupy(5);
+	r->getPrecells()[11]->occupy(5);
+	
 	// Main behavior
 	carSpawner(r);
 

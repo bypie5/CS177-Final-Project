@@ -18,8 +18,10 @@ public:
 		return pavement->num_busy() > 0 ? true : false;
 	};
 	void occupy(int requester_id) { 
-		pavement->reserve(); 
-		owner = requester_id;
+		if (owner == -1) {
+			pavement->reserve(); 
+			owner = requester_id;
+		}
 	};
 	void free(int requester_id) {
 		if (requester_id == owner) {
@@ -27,6 +29,7 @@ public:
 			owner = -1;
 		}
 	};
+	int getOwner() { return owner; };
 };
 
 #endif
