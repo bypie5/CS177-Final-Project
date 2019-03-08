@@ -87,7 +87,6 @@ void Car::driveSM(Cell** r, int len) {
 		break;
 		case REACTING:
 			// Actions 
-			//portionDriven = 0;
 			distanceDrifted = (portionDriven > 0.5) ? portionDriven - 0.5 : portionDriven;
 			totalDrifted = 0;
 			
@@ -120,8 +119,6 @@ void Car::driveSM(Cell** r, int len) {
 			}
 	
 			printf("Car %d drifted: %f\n", id, totalDrifted);
-
-			//portionDriven = 0;//portionDriven >= 1.0 ? portionDriven - 1.0 : portionDriven;			
 
 			// Transition
 			printf("%f (Car %d): REACTING->STOPPING\n", clock, id);
