@@ -47,6 +47,17 @@ public:
 
 	Cell** getPostcells() { return this->postcells; };
 	int getPostcellsLen() { return this->postlength*CARLEN; };
+
+	void printRoadway(Cell** r, int len) {
+		for (int i = 0; i < len; i++) {
+			if (r[i]->isBusy()) {
+				printf("[x]");
+			} else {
+				printf("[%d]", i);
+			}
+		}
+		printf("\n\n");
+	}
 };
 
 #endif

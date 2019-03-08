@@ -13,6 +13,8 @@
 class Car {
 private:
 	Roadway* roadway;
+	int startLoc;
+	int id;
 	int currSpeed;	
 	int head;
 	int tail;
@@ -28,11 +30,13 @@ private:
 	int lenPost;
 
 public:
-	Car(Roadway * r) {
+	Car(Roadway * r, int startLoc, int id) {
 		// Data setup
+		this->id = id;
 		this->roadway = r;
-		head = 0;
-		tail = -1;
+		this->startLoc = startLoc;
+		head = startLoc;
+		tail = startLoc-1;
 		monitorLen = 2;
 		state = STOPPED;
 		portionDriven = 0;
@@ -47,14 +51,15 @@ public:
 public:
 	void simCar();
 	void getLocation() {
-		printf("%f: head: %d, tail: %d Speed(%d)\n", clock, head, tail, currSpeed);
+		printf("%f (Car %d): head: %d, tail: %d Speed(%d)\n", clock, id, head, tail, currSpeed);
 	}
 private:
 	void driveSM(Cell** r, int len);
 	double secPerCar(int s);
 	bool obstacle(Cell** path, int len);
-	void driveCarLenPortion(Cell** p, int pl, double portionFraction);
+	void driveCarLenPortion(Cell** p, int pl, double portionFraction, bool accelerate);
 	void increaseSpeed();
+	void decreaseSpeed();
 };
 
 #endif

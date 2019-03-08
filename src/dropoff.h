@@ -29,15 +29,15 @@ public:
 		}
 	}
 
-	void reserveMe() {
+	void reserveMe(int id) {
 		for (int i = 0; i < DROPOFFLEN; i++) {
-			cells[i]->occupy();
+			cells[i]->occupy(id);
 		}		
 	}
 
-	void releaseMe() {
+	void releaseMe(int id) {
 		for (int i = 0; i < DROPOFFLEN; i++) {
-			cells[i]->free();
+			cells[i]->free(id);
 		}
 	}
 };
