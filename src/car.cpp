@@ -6,6 +6,7 @@
 #ifndef __HELPERS__
 #define __HELPERS__
 bool double_equals(double a, double b, double epsilon);
+double truncateToTenths(double val);
 #endif
 
 
