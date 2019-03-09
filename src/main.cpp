@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "roadway.h"
 #include "car.h"
+#include "dispatcher.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ void carSpawner(Roadway* r) {
 }
 
 // Spawn autonomous cars to in waves to pick up children
-void smartSchool(Roadway* r) {
+void smartSchool(Roadway* r, Dispatcher* d) {
 	int zoneCnt = r->getDropoffCount();
 	create("smart school spawner");
 }
@@ -46,14 +47,17 @@ extern "C" void sim() {
 
 	// Setup
 	Roadway* r = new Roadway(8, 14, 3);
-	
+	#ifdef AUTOPILOT
+	Dispatcher* d = new Dispatcher(3);
+	#endif	
+
 	// Main behavior
 	#ifndef AUTOPILOT
 	carSpawner(r);
 	#endif
 	
 	#ifdef AUTOPILOT
-	smartSchool(r);
+	smartSchool(r, d);
 	#endif
 
 	hold(SIMTIME);

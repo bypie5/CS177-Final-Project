@@ -20,7 +20,8 @@ void Car::simCar() {
 	lenZones = roadway->getDropoffCount();
 	postcells = roadway->getPostcells();
 	lenPost = roadway->getPostcellsLen();
-
+	
+	#ifndef AUTOPILOT
 	// Pull into the school dropoff...
 	if (head >= 0)
 		precells[head]->occupy(id);
@@ -59,6 +60,10 @@ void Car::simCar() {
 		#endif
 		driveSM(postcells, lenPost);
 	}
+	#endif
+
+	#ifdef AUTOPILOT
+	#endif
 }
 
 void Car::driveSM(Cell** r, int len) {	
