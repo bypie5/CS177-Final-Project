@@ -18,7 +18,7 @@ void carSpawner(Roadway* r) {
 	create("Spawner");
 	
 	while(simulating) {
-		hold(exponential(30));
+		hold(exponential(17.4));
 		new Car(r, 0, carCount);
 		carCount++;
 	}
@@ -32,10 +32,7 @@ extern "C" void sim() {
 	carCount = 0;
 
 	// Setup
-	Roadway* r = new Roadway(10, 15, 1);
-	
-	// Road block
-	//r->getPrecells()[11]->occupy(5);
+	Roadway* r = new Roadway(8, 14, 1);
 	
 	// Main behavior
 	carSpawner(r);
@@ -43,6 +40,6 @@ extern "C" void sim() {
 	hold(SIMTIME);
 	simulating = false;
 	//trace_off();
-	//report();
+	report();
 }
 
