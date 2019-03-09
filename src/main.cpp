@@ -11,26 +11,37 @@
 
 using namespace std;
 
+bool simulating;
+int carCount;
+
 void carSpawner(Roadway* r) {
-	new Car(r, 0, 1);
-	new Car(r, 2, 2);
+	create("Spawner");
+	
+	while(simulating) {
+		hold(exponential(30));
+		new Car(r, 0, carCount);
+		carCount++;
+	}
 }
 
 extern "C" void sim() {
 	//trace_on();
 	create("sim");
+		
+	simulating = true;
+	carCount = 0;
 
 	// Setup
-	Roadway* r = new Roadway(10, 10, 1);
+	Roadway* r = new Roadway(10, 15, 1);
 	
 	// Road block
-	r->getPrecells()[11]->occupy(5);
 	//r->getPrecells()[11]->occupy(5);
 	
 	// Main behavior
 	carSpawner(r);
 
 	hold(SIMTIME);
+	simulating = false;
 	//trace_off();
 	//report();
 }

@@ -38,17 +38,21 @@ void Car::simCar() {
 	head = 0;
 	tail = -1;
 	state = STOPPED;	
+	
 
+	printf("%f: Car %d is DROPPING OFF THE KIDS\n", clock, id);
 	// Reserve and drop off at furthest zone
 	zones[0]->reserveMe(id);
 	hold(9.5);
 	zones[0]->releaseMe(id);
+	printf("%f: Car %d is DONE DROPPING OF KIDS\n", clock, id);
+
 
 	// Drive off and exit world via postcells
-	/*while (tail < lenPost) {
+	while (tail < lenPost) {
 		getLocation();
 		driveSM(postcells, lenPost);
-	}*/
+	}
 }
 
 void Car::driveSM(Cell** r, int len) {	
