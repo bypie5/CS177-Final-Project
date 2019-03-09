@@ -32,7 +32,7 @@ extern "C" void sim() {
 	carCount = 0;
 
 	// Setup
-	Roadway* r = new Roadway(8, 14, 1);
+	Roadway* r = new Roadway(8, 14, 3);
 	
 	// Main behavior
 	carSpawner(r);

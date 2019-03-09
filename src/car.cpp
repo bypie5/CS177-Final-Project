@@ -44,10 +44,11 @@ void Car::simCar() {
 	#ifdef DEBUG
 	printf("%f: Car %d is DROPPING OFF THE KIDS\n", clock, id);
 	#endif
-	// Reserve and drop off at furthest zone
-	zones[0]->reserveMe(id);
-	hold(9.5);
-	zones[0]->releaseMe(id);
+
+	zones->reserveMe(id);
+	hold(normal(9.59, 3.42));
+	zones->releaseMe(id);
+
 	#ifdef DEBUG
 	printf("%f: Car %d is DONE DROPPING OF KIDS\n", clock, id);
 	#endif

@@ -24,7 +24,7 @@ private:
 
 	Cell** precells;
 	int lenPre;
-	Dropoff** zones;
+	DropoffZone* zones;
 	int lenZones;
 	Cell** postcells;
 	int lenPost;
