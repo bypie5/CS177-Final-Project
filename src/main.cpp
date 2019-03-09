@@ -14,8 +14,9 @@ using namespace std;
 bool simulating;
 int carCount;
 
+// Simulates imperfect human drivers
 void carSpawner(Roadway* r) {
-	create("Spawner");
+	create("car spawner");
 	
 	while(simulating) {
 		hold(exponential(17.4));
@@ -24,10 +25,22 @@ void carSpawner(Roadway* r) {
 	}
 }
 
+// Spawn autonomous cars to in waves to pick up children
+void smartSchool(Roadway* r) {
+	int zoneCnt = r->getDropoffCount();
+	create("smart school spawner");
+}
+
 extern "C" void sim() {
-	//trace_on();
 	create("sim");
 		
+	#ifdef AUTOPILOT
+	printf("\n\n");
+	for (int i = 0; i < 80; i++) { printf("*"); } printf("\n");
+	printf("IMPORTANT: Using auto-pilot\n");
+	for (int i = 0; i < 80; i++) { printf("*"); } printf("\n\n");
+	#endif
+
 	simulating = true;
 	carCount = 0;
 
@@ -35,11 +48,16 @@ extern "C" void sim() {
 	Roadway* r = new Roadway(8, 14, 3);
 	
 	// Main behavior
+	#ifndef AUTOPILOT
 	carSpawner(r);
+	#endif
+	
+	#ifdef AUTOPILOT
+	smartSchool(r);
+	#endif
 
 	hold(SIMTIME);
 	simulating = false;
-	//trace_off();
 	report();
 }
 

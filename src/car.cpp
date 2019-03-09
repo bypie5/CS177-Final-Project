@@ -9,7 +9,6 @@ bool double_equals(double a, double b, double epsilon);
 double truncateToTenths(double val);
 #endif
 
-
 // Lifetime and behavior of a car
 void Car::simCar() {
 	create("Car");
