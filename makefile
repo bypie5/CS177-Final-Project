@@ -11,5 +11,9 @@ all:
 %.o: %.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
+debug:
+	mkdir -p ./bin
+	$(CC) $(CSIMFLAGS_1) -DDEBUG $(OBJECTS) $(CSIMFLAGS_2) -o ./bin/dropoff_sim
+
 clean:
 	rm -rf ./bin

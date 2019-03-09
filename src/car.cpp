@@ -6,6 +6,7 @@
 #ifndef __HELPERS__
 #define __HELPERS__
 bool double_equals(double a, double b, double epsilon);
+double truncateToTenths(double val);
 #endif
 
 
@@ -29,7 +30,9 @@ void Car::simCar() {
 
 	// Driving state machine
 	while (tail <= lenPre) {
+		#ifdef DEBUG
 		getLocation();
+		#endif
 		driveSM(precells, lenPre);
 	}
 
@@ -37,17 +40,25 @@ void Car::simCar() {
 	head = 0;
 	tail = -1;
 	state = STOPPED;	
-
+	
+	#ifdef DEBUG
+	printf("%f: Car %d is DROPPING OFF THE KIDS\n", clock, id);
+	#endif
 	// Reserve and drop off at furthest zone
 	zones[0]->reserveMe(id);
 	hold(9.5);
 	zones[0]->releaseMe(id);
+	#ifdef DEBUG
+	printf("%f: Car %d is DONE DROPPING OF KIDS\n", clock, id);
+	#endif
 
 	// Drive off and exit world via postcells
-	/*while (tail < lenPost) {
+	while (tail < lenPost) {
+		#ifdef DEBUG
 		getLocation();
+		#endif
 		driveSM(postcells, lenPost);
-	}*/
+	}
 }
 
 void Car::driveSM(Cell** r, int len) {	
@@ -57,8 +68,10 @@ void Car::driveSM(Cell** r, int len) {
 	double totalDrifted = 0;	
 	
 	// See the traffic on the roadway
+	#ifdef DEBUG
 	roadway->printRoadway(r, len);
-	
+	#endif	
+
 	switch(state) {
 		case STOPPED:
 			// Actions
@@ -66,7 +79,9 @@ void Car::driveSM(Cell** r, int len) {
 			hold(0.1); // Allow simulation time to advance while stopped
 			// Transitions
 			if (!obstacle(r, len)) {
+				#ifdef DEBUG
 				printf("%f(Car %d): STOPPED->DRIVING\n", clock, id);
+				#endif
 				currSpeed = 1;
 				state = DRIVING;
 			} else {
@@ -79,7 +94,9 @@ void Car::driveSM(Cell** r, int len) {
 		
 			// Transitions
 			if (obstacle(r, len)) {
+				#ifdef DEBUG
 				printf("%f (Car %d): DRIVING->REACTING\n", clock, id);
+				#endif
 				state = REACTING;
 			} else {
 				state = DRIVING;
@@ -91,7 +108,9 @@ void Car::driveSM(Cell** r, int len) {
 			totalDrifted = 0;
 			
 			// Drive at current speed during delayed reaction time (1 second)
+			#ifdef DEBUG
 			printf("EXPECTED DRIFT: %f\n",1./secPerCar(currSpeed));	
+			#endif
 			for (int i = 0; i < portionFraction; i++) {
 				double carPerSec_portion = (double) (1/secPerCar(currSpeed))/(portionFraction);
 				
@@ -118,10 +137,13 @@ void Car::driveSM(Cell** r, int len) {
 				}
 			}
 	
+			#ifdef DEBUG
 			printf("Car %d drifted: %f\n", id, totalDrifted);
-
+			#endif
 			// Transition
+			#ifdef DEBUG
 			printf("%f (Car %d): REACTING->STOPPING\n", clock, id);
+			#endif
 			distanceDrifted = 0; // Reset for next time
 			currSpeed--;
 			if (currSpeed < 0) currSpeed = 0;
@@ -133,10 +155,14 @@ void Car::driveSM(Cell** r, int len) {
 
 			// Transitions
 			if (currSpeed == 0) {
+				#ifdef DEBUG
 				printf("%f(Car %d): STOPPING->STOPPED\n", clock, id);
+				#endif
 				state = STOPPED;
 			} else if (currSpeed != 0 && !obstacle(r, len)) {
+				#ifdef DEBUG
 				printf("%f (Car %d): STOPPING->DRIVING\n", clock, id);
+				#endif
 				state = DRIVING;
 			}
 		break;
@@ -198,7 +224,9 @@ bool Car::obstacle(Cell** path, int len) {
 	// Check cells for monitor distance
 	for (int i = head; i <= head+monitorLen; i++) {
 		if (i < len && path[i]->isBusy() && path[i]->getOwner() != id) {
+			#ifdef DEBUG
 			printf("Obstacle detected %d cells ahead while going %d speed\n", i-head, currSpeed);
+			#endif
 			return true;
 		}
 	}
@@ -225,7 +253,9 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction, b
 	portionDriven = truncateToTenths(portionDriven);	
 	
 	portionDriven = portionDriven > 1.0 ? 0 : portionDriven;
+	#ifdef DEBUG
 	printf("Car %d portionDriven: %f\n", id, portionDriven);
+	#endif
 
 	// Increase head and tail
 	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 1.0)) {
