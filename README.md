@@ -10,7 +10,7 @@ Simulates cars dropping students off at the front of the school before classes b
 
 ## How To Use
 
-There are two operating modes from this application: Regular drivers or Autonomous vehicles. Deciding which mode you'd like to use can be made before you compile the application.
+There are two operating modes for this application: Regular drivers or Autonomous vehicles. Deciding which mode you'd like to use can be made before you compile the application.
 
 ### Regular Drivers
 
@@ -43,6 +43,6 @@ Now that the application has been compiled in one of the two modes, the applicat
 Run the application with the following options:
 
 ```
-./dropoff_sim <car lengths before dropoff zones> <# of dropoff zones> <car lengths after dropoff zones>
+./bin/dropoff_sim <car lengths before dropoff zones> <# of dropoff zones> <car lengths after dropoff zones>
 ```
 
