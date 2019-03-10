@@ -9,7 +9,6 @@ bool double_equals(double a, double b, double epsilon);
 double truncateToTenths(double val);
 #endif
 
-
 // Lifetime and behavior of a car
 void Car::simCar() {
 	create("Car");
@@ -21,7 +20,8 @@ void Car::simCar() {
 	lenZones = roadway->getDropoffCount();
 	postcells = roadway->getPostcells();
 	lenPost = roadway->getPostcellsLen();
-
+	
+	#ifndef AUTOPILOT
 	// Pull into the school dropoff...
 	if (head >= 0)
 		precells[head]->occupy(id);
@@ -44,10 +44,11 @@ void Car::simCar() {
 	#ifdef DEBUG
 	printf("%f: Car %d is DROPPING OFF THE KIDS\n", clock, id);
 	#endif
-	// Reserve and drop off at furthest zone
-	zones[0]->reserveMe(id);
-	hold(9.5);
-	zones[0]->releaseMe(id);
+
+	zones->reserveMe(id);
+	hold(abs(normal(9.59, 3.42)));
+	zones->releaseMe(id);
+
 	#ifdef DEBUG
 	printf("%f: Car %d is DONE DROPPING OF KIDS\n", clock, id);
 	#endif
@@ -59,6 +60,75 @@ void Car::simCar() {
 		#endif
 		driveSM(postcells, lenPost);
 	}
+	#endif
+
+	#ifdef AUTOPILOT
+	double portionFraction = 10;
+	
+	// Pull into the drive way and wait
+	if (head >= 0) precells[head]->occupy(id);
+	if (tail >= 0) precells[tail]->occupy(id);
+	#ifdef DEBUG
+	printf("%f: Car %d waiting for traffic light\n", clock, id);
+	#endif
+	dispatcher->getTrafficLight()->wait();	
+	#ifdef DEBUG
+	printf("%f: Car %d can drive now\n", clock, id);
+	#endif
+
+	// Actual driving action
+	while (tail <= lenPre) {
+		#ifdef DEBUG
+		getLocation();
+		#endif
+		driveCarLenPortion(precells, lenPre, portionFraction, true);
+	}
+	portionDriven = 0;
+
+	#ifdef DEBUG
+	printf("%f: Car %d dropping off kids...\n", clock, id);	
+	#endif
+	// Drop off kids
+	currSpeed = 0;
+	zones->reserveMe(id);
+	hold(abs(normal(9.59, 3.42)));
+	zones->releaseMe(id);
+		
+	#ifdef DEBUB
+	printf("%f: Car %d had their passenger exit\n", clock, id);
+	#endif
+
+	if (dispatcher->getDoneUnloading()->wait_cnt() != lenZones) {
+		#ifdef DEBUG
+		printf("%f: Car %d waiting for all cars to finish dropping off...\n", clock, id);
+		#endif
+		dispatcher->getDoneUnloading()->wait();
+	} else {
+		#ifdef DEBUG
+		printf("%f: Car %d had last passenger to exit. Alerting other cars\n", clock, id);
+		#endif
+		hold(0.1); // Simulating communication time
+		dispatcher->getDoneUnloading()->set(); // Last kid just got out
+	}
+	
+	// Drive off and exit the world
+	#ifdef DEBUG
+	printf("%f: Car %d waiting for permission to drive off\n", clock, id);
+	#endif
+	dispatcher->getDriveAway()->wait();
+	#ifdef DEBUG
+	printf("%f: Car %d starting to drive off\n", clock, id);	
+	#endif
+	head = startLoc; tail = startLoc - 1;
+	
+	// Actual driving action
+	while (tail <= lenPost) {
+		#ifdef DEBUG
+		getLocation();
+		#endif
+		driveCarLenPortion(postcells, lenPost, portionFraction, true);
+	}
+	#endif
 }
 
 void Car::driveSM(Cell** r, int len) {	
@@ -259,15 +329,30 @@ void Car::driveCarLenPortion(Cell** path, int pathLen, double portionFraction, b
 
 	// Increase head and tail
 	if (double_equals(portionDriven, 0.5) || double_equals(portionDriven, 1.0)) {
+		#ifndef AUTOPILOT
 		if (!obstacle(path, pathLen)) {
 			head++; tail++;
 		}
+		#endif
+
+		#ifdef AUTOPILOT
+		head++; tail++;
+		#endif
 
 		// Increase speed 1 unit per car length
+		#ifndef AUTOPILOT
 		if (accelerate && double_equals(portionDriven, 1.0) && !obstacle(path, pathLen)) {
 			currSpeed++;
 			if (currSpeed > TARGETSPEED) currSpeed = TARGETSPEED;
 		}
+		#endif
+
+		#ifdef AUTOPILOT
+		if (accelerate && double_equals(portionDriven, 1.0)) {
+			currSpeed++;
+			if (currSpeed > TARGETSPEED) currSpeed = TARGETSPEED;
+		}
+		#endif
 		
 		// Decrease speed 2 units per car length
 		if (!accelerate) {

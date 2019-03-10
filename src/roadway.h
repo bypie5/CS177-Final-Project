@@ -1,5 +1,5 @@
 #include "cell.h"
-#include "dropoff.h"
+#include "dropoffZone.h"
 
 #ifndef __ROADWAY_H__
 #define __ROADWAY_H__
@@ -7,7 +7,8 @@
 class Roadway {
 private:
 	Cell** precells;
-	Dropoff** dropoffs;
+	//Dropoff** dropoffs;
+	DropoffZone* dropoffZone;
 	Cell** postcells;
 	int prelength; // Car lengths (2 cells per car)
 	int zones; // Number of dropoff areas
@@ -27,10 +28,7 @@ public:
 			precells[i] = new Cell();
 		}
 
-		dropoffs = (Dropoff**) malloc(sizeof(Dropoff*) * zones);
-		for (int i = 0; i < zones; i++) {
-			dropoffs[i] = new Dropoff();
-		}
+		dropoffZone = new DropoffZone(this->zones);
 
 		postcells = (Cell**) malloc(sizeof(Cell*) * postlength * CARLEN);
 		for (int i = 0; i < postlength * CARLEN; i++) {
@@ -42,7 +40,7 @@ public:
 	Cell** getPrecells() { return this->precells; };
 	int getPrecellsLen() { return this->prelength*CARLEN; };
 
-	Dropoff** getDropoffs() { return this->dropoffs; };
+	DropoffZone* getDropoffs() { return this->dropoffZone; };
 	int getDropoffCount() { return this->zones; };
 
 	Cell** getPostcells() { return this->postcells; };

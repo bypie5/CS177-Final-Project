@@ -1,6 +1,7 @@
 #include "cpp.h"
 #include "constants.h"
 #include "roadway.h"
+#include "dispatcher.h"
 
 #ifndef __CAR_H__
 #define __CAR_H__
@@ -13,6 +14,7 @@
 class Car {
 private:
 	Roadway* roadway;
+	Dispatcher* dispatcher;
 	int startLoc;
 	int id;
 	int currSpeed;	
@@ -24,7 +26,7 @@ private:
 
 	Cell** precells;
 	int lenPre;
-	Dropoff** zones;
+	DropoffZone* zones;
 	int lenZones;
 	Cell** postcells;
 	int lenPost;
@@ -47,6 +49,19 @@ public:
 		// Enter sim
 		this->simCar();
 	};
+
+	Car(Roadway* r, int startLoc, int id, Dispatcher* dispatcher) {
+		this->id = id;
+		this->roadway = r;
+		this->startLoc = startLoc;
+		head = startLoc;
+		tail = startLoc-1;
+		portionDriven = 0;
+		this->dispatcher = dispatcher;
+		currSpeed = 0;
+
+		this->simCar();
+	}
 
 public:
 	void simCar();

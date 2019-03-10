@@ -11,9 +11,17 @@ all:
 %.o: %.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
+autopilot:
+	mkdir -p ./bin
+	$(CC) $(CSIMFLAGS_1) -DAUTOPILOT $(OBJECTS) $(CSIMFLAGS_2) -o ./bin/dropoff_sim
+
 debug:
 	mkdir -p ./bin
 	$(CC) $(CSIMFLAGS_1) -DDEBUG $(OBJECTS) $(CSIMFLAGS_2) -o ./bin/dropoff_sim
+
+autopilot-debug: 
+	mkdir -p ./bin
+	$(CC) $(CSIMFLAGS_1) -DDEBUG -DAUTOPILOT $(OBJECTS) $(CSIMFLAGS_2) -o ./bin/dropoff_sim
 
 clean:
 	rm -rf ./bin
