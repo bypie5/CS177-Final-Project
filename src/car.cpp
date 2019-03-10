@@ -63,6 +63,29 @@ void Car::simCar() {
 	#endif
 
 	#ifdef AUTOPILOT
+	// Pull into the drive way and wait
+	if (head >= 0) precells[head]->occupy(id);
+	if (tail >= 0) precells[tail]->occupy(id);
+	dispatcher->getTrafficLight()->wait();	
+	
+	// Actual driving action
+	
+	// Drop off kids
+	zones->reserveMe(id);
+	hold(normal(9.59, 3.42));
+	zones->releaseMe(id);
+
+	if (dispatcher->getDoneUnloading()->wait_cnt() != lenZones) {
+		dispatcher->getDoneUnloading()->wait();
+	} else {
+		dispatcher->getDoneUnloading()->set(); // Last kid just got out
+	}
+	
+	// Drive off and exit the world
+	dispatcher->getDriveAway()->wait();
+		
+	// Actual driving action
+	
 	#endif
 }
 

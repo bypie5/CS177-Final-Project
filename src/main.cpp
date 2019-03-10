@@ -30,6 +30,24 @@ void carSpawner(Roadway* r) {
 void smartSchool(Roadway* r, Dispatcher* d) {
 	int zoneCnt = r->getDropoffCount();
 	create("smart school spawner");
+	while (simulating) {
+		#ifdef DEBUG
+		printf("%f: New batch of %d cars...\n", clock, zoneCnt);
+		#endif
+		
+		// Spawn new cars when old cars start to drive away
+		for (int i = 0; i < zoneCnt; i++) {
+			int newPos = CARLEN - ((zoneCnt - i) * CARLEN);
+			new Car(r, newPos, carCount, d);
+			carCount++;
+		}
+		
+		// Main behavior
+		d->dispatchLoop();
+		
+		// Current (soon to be old) cars are driving away
+		d->getDriveAway()->wait();
+	}
 }
 
 extern "C" void sim() {
