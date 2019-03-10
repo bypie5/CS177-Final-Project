@@ -31,7 +31,7 @@ void smartSchool(Roadway* r, Dispatcher* d) {
 	int zoneCnt = r->getDropoffCount();
 	create("smart school spawner");
 	while (simulating) {
-		hold(5);
+		hold(exponential(17.4));
 		#ifdef DEBUG
 		printf("%f: New batch of %d cars...\n", clock, zoneCnt);
 		#endif
