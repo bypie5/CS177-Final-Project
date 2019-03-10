@@ -56,7 +56,6 @@ public:
 		this->startLoc = startLoc;
 		head = startLoc;
 		tail = startLoc-1;
-		state = STOPPED;
 		portionDriven = 0;
 		this->dispatcher = dispatcher;
 		currSpeed = 0;
