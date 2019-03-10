@@ -54,37 +54,55 @@ void smartSchool(Roadway* r, Dispatcher* d) {
 	}
 }
 
-extern "C" void sim() {
-	create("sim");
-	//trace_on();	
-	#ifdef AUTOPILOT
-	printf("\n\n");
-	for (int i = 0; i < 80; i++) { printf("*"); } printf("\n");
-	printf("IMPORTANT: Using auto-pilot\n");
-	for (int i = 0; i < 80; i++) { printf("*"); } printf("\n\n");
-	#endif
+extern "C" void sim(int argc, char** argv) {
+	if (argc != 4) {	
+		printf("\nERROR! Usage: ./dropoff_sim <car lengths before dropoff zones> <# of dropoff zones> <car lengths after dropoff zones>\n");
+		printf("Suggested (Based on University Heights Middle School in Riverside, CA) \'./dropoff_sim 8 14 3\'\n\n");
+	} else {
+		// Parse user input
+		int pre = atoi(argv[1]);
+		int zone = atoi(argv[3]);
+		int post = atoi(argv[2]);		
 
-	simulating = true;
-	carCount = 0;
+		create("sim");
 
-	// Setup
-	Roadway* r = new Roadway(8, 14, 3);
-	#ifdef AUTOPILOT
-	Dispatcher* d = new Dispatcher(3);
-	#endif	
+		#ifdef DEBUG
+		trace_on();	
+		#endif
 
-	// Main behavior
-	#ifndef AUTOPILOT
-	carSpawner(r);
-	#endif
+		#ifdef AUTOPILOT
+		printf("\n\n");
+		for (int i = 0; i < 80; i++) { printf("*"); } printf("\n");
+		printf("IMPORTANT: Using auto-pilot\n");
+		for (int i = 0; i < 80; i++) { printf("*"); } printf("\n\n");
+		#endif
+
+		simulating = true;
+		carCount = 0;
+
+		// Setup
+		Roadway* r = new Roadway(pre, post, zone);
+		#ifdef AUTOPILOT
+		Dispatcher* d = new Dispatcher(zone);
+		#endif	
+
+		// Main behavior
+		#ifndef AUTOPILOT
+		carSpawner(r);
+		#endif
 	
-	#ifdef AUTOPILOT
-	smartSchool(r, d);
-	#endif
+		#ifdef AUTOPILOT
+		smartSchool(r, d);
+		#endif
 
-	hold(SIMTIME);
-	simulating = false;
-	//trace_off();
-	report();
+		hold(SIMTIME);
+		simulating = false;
+		
+		#ifdef DEBUG	
+		trace_off();
+		#endif
+
+		report();
+	}
 }
 
