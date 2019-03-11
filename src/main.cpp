@@ -103,6 +103,8 @@ extern "C" void sim(int argc, char** argv) {
 		#endif
 
 		report();
+
+		printf("Throughput: %f\n", carCount/60.);
 	}
 }
 
